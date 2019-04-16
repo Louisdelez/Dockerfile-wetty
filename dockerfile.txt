@@ -1,0 +1,22 @@
+FROM alpine:edge
+
+RUN apk --update add git nodejs python build-base openssh-client
+
+WORKDIR /usr/share/webapps
+
+RUN git clone https://github.com/krishnasrinivas/wetty && \
+    cd wetty && \
+    npm install
+
+RUN apk del build-base
+
+WORKDIR /usr/share/webapps/wetty
+
+RUN addgroup seuf
+RUN adduser -G seuf -h /home/seuf -s /bin/ash -D seuf
+
+RUN echo "seuf:PassWordSecretAChanger" | chpasswd
+
+RUN chown -R seuf:seuf /home/seuf/.ssh
+
+CMD node app.js -p 3000
